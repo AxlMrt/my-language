@@ -26,7 +26,6 @@ enum class TokenType
   LBRACE,
   RBRACE,
   ASSIGN,
-  COMMENT,
   UNKNOWN,
   KEYWORD_CONST,
   KEYWORD_FOR,

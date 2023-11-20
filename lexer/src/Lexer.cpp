@@ -2,7 +2,7 @@
 
 bool my_isspace(char ch)
 {
-  return (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\v' || ch == '\f');
+  return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\v' || ch == '\f';
 }
 
 bool my_isdigit(char ch)
@@ -23,12 +23,25 @@ void my_strcpy(char *dest, const char *src)
 
 bool my_isalpha(char ch)
 {
-  return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'));
+  return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_';
 }
 
 bool my_isalnum(char ch)
 {
-  return (my_isalpha(ch) || (ch >= '0' && ch <= '9'));
+  return my_isalpha(ch) || my_isdigit(ch);
+}
+
+int my_strncmp(const char *str1, const char *str2, int n)
+{
+  for (int i = 0; i < n; ++i)
+  {
+    if (str1[i] != str2[i])
+      return str1[i] - str2[i];
+    if (str1[i] == '\0')
+      return 0;
+  }
+
+  return 0;
 }
 
 Lexer::Lexer() {}
@@ -126,6 +139,40 @@ void Lexer::scan(const char *sourceCode, Token *tokens)
       continue;
     }
 
+    if (my_isalpha(*currentChar))
+    {
+      if (my_strncmp(currentChar, "int", 3) == 0 && !my_isalnum(currentChar[3]))
+      {
+        currentToken->type = TokenType::KEYWORD_INT;
+        my_strcpy(currentToken->lexeme, "int");
+        currentChar += 3;
+        ++currentToken;
+        continue;
+      }
+
+      if (my_strncmp(currentChar, "decimal", 7) == 0 && !my_isalnum(currentChar[7]))
+      {
+        currentToken->type = TokenType::KEYWORD_DECIMAL;
+        my_strcpy(currentToken->lexeme, "decimal");
+        currentChar += 7;
+        ++currentToken;
+        continue;
+      }
+
+      currentToken->type = TokenType::IDENTIFIER;
+      int i = 0;
+
+      while (my_isalnum(*currentChar) || *currentChar == '_')
+        currentToken->lexeme[i++] = *currentChar++;
+
+      currentToken->lexeme[i] = '\0';
+      ++currentToken;
+      continue;
+    }
+
+
+
+
     if (*currentChar == '+' || *currentChar == '-' || *currentChar == '*' || *currentChar == '/' || *currentChar == '=' || *currentChar == ':' || *currentChar == ';')
     {
       switch (*currentChar)
@@ -163,48 +210,6 @@ void Lexer::scan(const char *sourceCode, Token *tokens)
       continue;
     }
 
-    if (my_isalpha(*currentChar))
-    {
-      currentToken->type = TokenType::IDENTIFIER;
-      int i = 0;
-
-      while (my_isalnum(*currentChar) || *currentChar == '_')
-        currentToken->lexeme[i++] = *currentChar++;
-
-      currentToken->lexeme[i] = '\0';
-      ++currentToken;
-      continue;
-    }
-
-    if (*currentChar == '=')
-    {
-      currentToken->type = TokenType::ASSIGN;
-      currentToken->lexeme[0] = '=';
-      currentToken->lexeme[1] = '\0';
-      ++currentToken;
-      ++currentChar;
-      continue;
-    }
-
-    if (*currentChar == ':')
-    {
-      currentToken->type = TokenType::COLON;
-      currentToken->lexeme[0] = ':';
-      currentToken->lexeme[1] = '\0';
-      ++currentToken;
-      ++currentChar;
-      continue;
-    }
-
-    if (*currentChar == ';')
-    {
-      currentToken->type = TokenType::SEMICOLON;
-      currentToken->lexeme[0] = ';';
-      currentToken->lexeme[1] = '\0';
-      ++currentToken;
-      ++currentChar;
-      continue;
-    }
 
     ++currentChar;
   }

@@ -6,10 +6,40 @@ using namespace std;
 
 
 const char *tokenNames[] = {
-    "IDENTIFIER", "INTEGER", "DECIMAL", "STRING", "CHARACTER", "BOOLEAN", "POINTER", "REFERENCE", "PLUS", "MINUS",
-    "MULTIPLY", "DIVIDE", "SEMICOLON", "COLON", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "ASSIGN", "UNKNOWN",
-    "KEYWORD_CONST", "KEYWORD_FOR", "KEYWORD_WHILE", "KEYWORD_DO", "KEYWORD_IF", "KEYWORD_ELSE", "KEYWORD_FUNCTION",
-    "KEYWORD_RETURN", "KEYWORD_LOG", "END_OF_FILE"
+    "IDENTIFIER",
+    "INTEGER",
+    "DECIMAL",
+    "STRING",
+    "CHARACTER",
+    "BOOLEAN",
+    "POINTER",
+    "REFERENCE",
+    "PLUS",
+    "MINUS",
+    "MULTIPLY",
+    "DIVIDE",
+    "SEMICOLON",
+    "COLON",
+    "LPAREN",
+    "RPAREN",
+    "LBRACE",
+    "RBRACE",
+    "ASSIGN",
+    "UNKNOWN",
+    "KEYWORD_CONST",
+    "KEYWORD_INT",
+    "KEYWORD_DECIMAL",
+    "KEYWORD_BOOL",
+    "KEYWORD_STRING",
+    "KEYWORD_FOR",
+    "KEYWORD_WHILE",
+    "KEYWORD_DO",
+    "KEYWORD_IF",
+    "KEYWORD_ELSE",
+    "KEYWORD_FUNCTION",
+    "KEYWORD_RETURN",
+    "KEYWORD_LOG",
+    "END_OF_FILE"
 };
 
 int main()

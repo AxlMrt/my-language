@@ -11,18 +11,20 @@ const char *tokenNames[] = {
     "KEYWORD_DO", "KEYWORD_IF", "KEYWORD_ELSE", "KEYWORD_FUNCTION", "KEYWORD_RETURN", "KEYWORD_LOG", "END_OF_FILE"
 };
 
+
 int main() {
     ifstream inputFile("test");
     string syntaxContent((istreambuf_iterator<char>(inputFile)),
-                             istreambuf_iterator<char>());
+                         istreambuf_iterator<char>());
 
     Lexer lexer;
-    Token tokens[MAX_TOKENS]; 
+    Token tokens[MAX_TOKENS];
 
     lexer.scan(syntaxContent.c_str(), tokens);
 
-    for (int i = 0; tokens[i].type != TokenType::END_OF_FILE; ++i)
-        cout << "Token type: " << tokenNames[static_cast<int>(tokens[i].type)] << ", Lexeme: " << tokens[i].lexeme << std::endl;
+    for (int i = 0; tokens[i].type != TokenType::END_OF_FILE; ++i) {
+        cout << "Token type: " << tokenNames[static_cast<int>(tokens[i].type)] << ", Lexeme: " << tokens[i].lexeme << endl;
+    }
 
     return 0;
 }

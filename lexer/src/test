@@ -1,56 +1,5 @@
+# Ceci est un commentaire sur une seule ligne
 
-# Ceci est un commentaire
-isDone: bool = true;
+variable: int = 10;  # Assignation d'une valeur à une variable
 
-name: string = "John Doe";
-
-age: int = 30;
-
-pi: decimal = 3.14159;
-
-const IS_DONE: bool = true;
-
-const NAME: string = "John Doe";
-
-const AGE: int = 30;
-
-const PI: decimal = 3.14159;
-
-value: int = 42;
-ptr: *int = &value;
-
-variable: int = 42;
-reference: &int = &variable;
-dereferenced: int = *reference;
-
-log("Address of value:", &value);
-log("Value through pointer:", *ptr);
-
-for (i: int = 0; i < 5; i++) {
-    log("Iteration", i);
-}
-
-for (element: type in collection) {
-  log("Element", element);
-}
-
-do {
-  #Instruction
-} while (condition)
-
-counter: int = 0;
-while (counter < 3) {
-    log("Counter", counter);
-    counter++;
-}
-
-fn findMax(arr: int[]): int {
-    max: int = arr[0];
-    for (element: int in arr) {
-        if (element > max) {
-            max = element;
-        }
-    }
-
-    return max;
-}
+# Voici une autre ligne de commentaire

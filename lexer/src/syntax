@@ -1,0 +1,74 @@
+# Ceci est un commentaire
+
+# Booléen (mutable)
+isDone: bool = true;
+
+# Chaîne de caractères (mutable)
+name: string = "John Doe";
+
+# Caractère (mutable)
+initial: char = 'A';
+
+# Entier (mutable)
+age: int = 30;
+
+# Décimal (mutable)
+pi: decimal = 3.14159;
+
+# Déclarations de constantes pour différents types de données
+# Booléen (constante)
+const IS_DONE: bool = true;
+
+# Chaîne de caractères (constante)
+const NAME: string = "John Doe";
+
+# Caractère (constante)
+const INITIAL: char = 'A';
+
+# Entier (constante)
+const AGE: int = 30;
+
+# Décimal (constante)
+const PI: decimal = 3.14159;
+
+# Utilisation de pointeurs avec une syntaxe simplifiée
+value: int = 42;
+ptr: *int = &value; # Déclaration d'un pointeur vers un entier
+
+
+# Utilisation directe du pointeur pour accéder à la valeur pointée
+variable: int = 42; # Variable mutable
+reference: &int = &variable; #Référence à la variable
+dereferenced: int = *reference; #Déréférencement de la référence
+
+log("Address of value:", &value);
+log("Value through pointer:", *ptr);
+
+for (i: int = 0; i < 5; i++) {
+    log("Iteration", i);
+}
+
+for (element: type in collection) {
+  log("Element", element);
+}
+
+do {
+  #Instruction
+} while (condition)
+
+counter: int = 0;
+while (counter < 3) {
+    log("Counter", counter);
+    counter++;
+}
+
+fn findMax(arr: int[]): int {
+    max: int = arr[0];
+    for (element: int in arr) {
+        if (element > max) {
+            max = element;
+        }
+    }
+
+    return max;
+}

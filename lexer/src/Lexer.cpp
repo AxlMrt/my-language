@@ -37,13 +37,73 @@ void Lexer::scan(const char *sourceCode, Token *tokens)
       continue;
     }
 
-    if (my_isdigit(*currentChar))
+    
+    if (my_isdigit(*currentChar) || *currentChar == '.')
     {
-      currentToken->type = TokenType::INTEGER;
+      bool isDecimal = (*currentChar == '.');
+      bool hasDecimal = isDecimal;
+
+      if (isDecimal && !my_isdigit(*(currentChar + 1))) {
+        currentToken->type = TokenType::UNKNOWN;
+        ++currentChar;
+      } else {
+        currentToken->type = TokenType::INTEGER;
+        int i = 0;
+
+        while (my_isdigit(*currentChar) || *currentChar == '.')
+        {
+          if (*currentChar == '.')
+          {
+            if (hasDecimal)
+            {
+              currentToken->type = TokenType::UNKNOWN;
+              break;
+            }
+            
+            hasDecimal = true;
+          }
+          
+          currentToken->lexeme[i++] = *currentChar++;
+        }
+
+        currentToken->lexeme[i] = '\0';
+
+        if (hasDecimal)
+            currentToken->type = TokenType::DECIMAL;
+      }
+
+      ++currentToken;
+      continue;
+    }
+
+    if (*currentChar == 't' || *currentChar == 'f')
+    {
+      if (*(currentChar + 1) == 'r' && *(currentChar + 2) == 'u' && *(currentChar + 3) == 'e') {
+        currentToken->type = TokenType::BOOLEAN;
+        my_strcpy(currentToken->lexeme, "true");
+        currentChar += 4;
+        ++currentToken;
+        continue;
+      } else if (*(currentChar + 1) == 'a' && *(currentChar + 2) == 'l' && *(currentChar + 3) == 's' && *(currentChar + 4) == 'e') {
+        currentToken->type = TokenType::BOOLEAN;
+        my_strcpy(currentToken->lexeme, "false");
+        currentChar += 5;
+        ++currentToken;
+        continue;
+      }
+    }
+
+    if (*currentChar == '"')
+    {
+      ++currentChar;
+      currentToken->type = TokenType::STRING;
       int i = 0;
 
-      while (my_isdigit(*currentChar))
+      while (*currentChar != '"' && *currentChar != '\0')
         currentToken->lexeme[i++] = *currentChar++;
+
+      if (*currentChar == '"')
+        ++currentChar;
 
       currentToken->lexeme[i] = '\0';
       ++currentToken;

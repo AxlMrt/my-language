@@ -38,7 +38,7 @@ const char *tokenNames[] = {
     "KEYWORD_ELSE",
     "KEYWORD_FUNCTION",
     "KEYWORD_RETURN",
-    "KEYWORD_LOG",
+    "KEYWORD_DSPL",
     "END_OF_FILE"
 };
 

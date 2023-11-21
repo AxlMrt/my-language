@@ -5,5 +5,6 @@ decimal_variable: decimal = 3.14; # Déclaration d'une variable décimale
 bool_variable: bool = true;  # Déclaration d'une variable booléenne
 string_variable: string = "Hello, World!"; # Déclaration d'une variable string_variable
 
-result = int_variable + 5;  # Opération d'addition
+result: int = int_variable + 5;  # Opération d'addition
 
+dspl(result); # Utilisation de la fonction dspl pour afficher un message

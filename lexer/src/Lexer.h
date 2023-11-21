@@ -39,7 +39,7 @@ enum class TokenType
   KEYWORD_ELSE,
   KEYWORD_FUNCTION,
   KEYWORD_RETURN,
-  KEYWORD_LOG,
+  KEYWORD_DSPL,
   END_OF_FILE,
   // Fine for now
 };
@@ -56,6 +56,13 @@ class Lexer
     Lexer();
 
     void scan(const char *sourceCode, Token *tokens);
+    void scanIdentifier(const char *&currentChar, Token *&currentToken);
+    void scanNumber(const char *&currentChar, Token *&currentToken);
+    void scanStrings(const char *&currentChar, Token *&currentToken);
+    void scanBool(const char *&currentChar, Token *&currentToken);
+    void scanOperators(const char *&currentChar, Token *&currentToken);
+    void scanKeywords(const char *&currentChar, Token *&currentToken);
+
 };
 
 #endif

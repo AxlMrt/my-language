@@ -159,6 +159,24 @@ void Lexer::scan(const char *sourceCode, Token *tokens)
         continue;
       }
 
+      if (my_strncmp(currentChar, "string", 6) == 0 && !my_isalnum(currentChar[6]))
+      {
+        currentToken->type = TokenType::KEYWORD_STRING;
+        my_strcpy(currentToken->lexeme, "string");
+        currentChar += 6;
+        ++currentToken;
+        continue;
+      }
+
+      if (my_strncmp(currentChar, "bool", 4) == 0 && !my_isalnum(currentChar[4]))
+      {
+        currentToken->type = TokenType::KEYWORD_BOOL;
+        my_strcpy(currentToken->lexeme, "bool");
+        currentChar += 4;
+        ++currentToken;
+        continue;
+      }
+
       currentToken->type = TokenType::IDENTIFIER;
       int i = 0;
 

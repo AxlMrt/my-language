@@ -17,49 +17,62 @@ void Lexer::scanIdentifier(const char *&currentChar, Token *&currentToken)
   ++currentToken;
 }
 
+
 void Lexer::scanNumber(const char *&currentChar, Token *&currentToken)
 {
-  bool isDecimal = (*currentChar == '.');
-  bool hasDecimal = isDecimal;
-
-  if (my_isdigit(*currentChar) || isDecimal)
-  {
-    currentToken->type = TokenType::INTEGER;
-    int i = 0;
+    bool isNegative = (*currentChar == '-');
+    bool isDecimal = false;
+    bool hasDecimal = false;
     bool hasDigits = false;
+    bool hasNonZeroAfterDecimal = false;
+
+    int i = 0;
+    char buffer[MAX_LEXEME_SIZE] = {0};
+
+    if (isNegative)
+        buffer[i++] = *currentChar++;
 
     while (my_isdigit(*currentChar) || *currentChar == '.')
     {
-      if (*currentChar == '.')
-      {
-        if (!hasDigits)
-        {
-          currentToken->type = TokenType::UNKNOWN;
-          break;
+        if (*currentChar == '.') {
+            if (!hasDigits)
+            {
+                currentToken->type = TokenType::INTEGER;
+                break;
+            }
+
+            if (hasDecimal)
+            {
+                currentToken->type = isNegative ? TokenType::DECIMAL : TokenType::INTEGER;
+                break;
+            }
+
+            isDecimal = true;
+            hasDecimal = true;
+        } else {
+            hasDigits = true;
+            if (isDecimal)
+                hasNonZeroAfterDecimal = true;
         }
-        
-        if (hasDecimal)
-        {
-          currentToken->type = TokenType::INTEGER;
-          break;
-        }
 
-        hasDecimal = true;
-      }
-
-      if (my_isdigit(*currentChar))
-        hasDigits = true;
-
-      currentToken->lexeme[i++] = *currentChar++;
+        buffer[i++] = *currentChar++;
     }
 
-    currentToken->lexeme[i] = '\0';
+    if (!hasDigits && !hasDecimal) {
+        currentToken->type = TokenType::UNKNOWN;
+        my_strcpy(currentToken->lexeme, "Invalid");
+    } else {
+        buffer[i] = '\0';
 
-    if (hasDecimal)
-      currentToken->type = TokenType::DECIMAL;
-  }
+        if (isDecimal && !hasNonZeroAfterDecimal)
+            currentToken->type = TokenType::INTEGER;
+        else
+            currentToken->type = isDecimal ? (isNegative ? TokenType::DECIMAL : TokenType::DECIMAL) : (isNegative ? TokenType::INTEGER : TokenType::INTEGER);
 
-  ++currentToken;
+        my_strcpy(currentToken->lexeme, buffer);
+    }
+
+    ++currentToken;
 }
 
 void Lexer::scanOperators(const char *&currentChar, Token *&currentToken)

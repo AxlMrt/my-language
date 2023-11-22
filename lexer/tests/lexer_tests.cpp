@@ -18,7 +18,7 @@ TEST_CASE("Lexer::scanIdentifier() correctly tokenizes identifiers")
 
   SECTION("Multiple identifiers")
   {
-    const char *identifier = "variable1 var_2 anotherVar int_var string_var bool_var decimal_var var124" ;
+    const char *identifier = "variable1 var_2 anotherVar int_var string_var bool_var DECIMAL_var var124" ;
     lexer.scanIdentifier(identifier, ptr_tokens);
     const TokenType expectedType = TokenType::IDENTIFIER;
 
@@ -27,38 +27,43 @@ TEST_CASE("Lexer::scanIdentifier() correctly tokenizes identifiers")
   }
 }
 
+
 TEST_CASE("Lexer::scanNumber() correctly tokenizes numbers")
 {
   Lexer lexer;
   Token tokens[50];
   Token *ptr_tokens = tokens;
 
-  SECTION("Integer")
+  SECTION("INTEGER")
   {
     const char *num = "123";
     lexer.scanNumber(num, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::INTEGER);
+    REQUIRE(std::stoi(tokens[0].lexeme) == 123);
   }
 
-  SECTION("Decimal")
+  SECTION("DECIMAL")
   {
     const char *num = "3.14";
     lexer.scanNumber(num, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::DECIMAL);
+    REQUIRE(std::stod(tokens[0].lexeme) == 3.14);
   }
 
-  SECTION("Negative Integer")
+  SECTION("Negative INTEGER")
   {
     const char *num = "-42";
     lexer.scanNumber(num, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::INTEGER);
+    REQUIRE(std::stoi(tokens[0].lexeme) == -42);
   }
 
-  SECTION("Negative Decimal")
+  SECTION("Negative DECIMAL")
   {
     const char *num = "-2.5";
     lexer.scanNumber(num, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::DECIMAL);
+    REQUIRE(std::stod(tokens[0].lexeme) == -2.5);
   }
 
   SECTION("Dot without numbers after")
@@ -66,11 +71,35 @@ TEST_CASE("Lexer::scanNumber() correctly tokenizes numbers")
     const char *num = "3.";
     lexer.scanNumber(num, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::INTEGER);
+    REQUIRE(std::stoi(tokens[0].lexeme) == 3);
   }
 
   SECTION("No digits at all")
   {
     const char *num = ".";
+    lexer.scanNumber(num, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::UNKNOWN);
+  }
+
+  SECTION("Large INTEGER")
+  {
+    const char *num = "999999999999999999";
+    lexer.scanNumber(num, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::INTEGER);
+    REQUIRE(std::stoll(tokens[0].lexeme) == 999999999999999999);
+  }
+
+  SECTION("Very Small DECIMAL")
+  {
+    const char *num = "0.000000000000000001";
+    lexer.scanNumber(num, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::DECIMAL);
+    REQUIRE(std::stod(tokens[0].lexeme) == 0.000000000000000001);
+  }
+
+  SECTION("Invalid Number")
+  {
+    const char *num = "abc";
     lexer.scanNumber(num, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::UNKNOWN);
   }

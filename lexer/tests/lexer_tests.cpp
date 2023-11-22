@@ -35,16 +35,44 @@ TEST_CASE("Lexer::scanNumber() correctly tokenizes numbers")
 
   SECTION("Integer")
   {
-    const char *number = "123";
-    lexer.scanNumber(number, ptr_tokens);
+    const char *num = "123";
+    lexer.scanNumber(num, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::INTEGER);
   }
 
   SECTION("Decimal")
   {
-    const char *number = "3.14";
-    lexer.scanNumber(number, ptr_tokens);
+    const char *num = "3.14";
+    lexer.scanNumber(num, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::DECIMAL);
+  }
+
+  SECTION("Negative Integer")
+  {
+    const char *num = "-42";
+    lexer.scanNumber(num, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::INTEGER);
+  }
+
+  SECTION("Negative Decimal")
+  {
+    const char *num = "-2.5";
+    lexer.scanNumber(num, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::DECIMAL);
+  }
+
+  SECTION("Dot without numbers after")
+  {
+    const char *num = "3.";
+    lexer.scanNumber(num, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::INTEGER);
+  }
+
+  SECTION("No digits at all")
+  {
+    const char *num = ".";
+    lexer.scanNumber(num, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::UNKNOWN);
   }
 }
 

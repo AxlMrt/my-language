@@ -22,40 +22,44 @@ void Lexer::scanNumber(const char *&currentChar, Token *&currentToken)
   bool isDecimal = (*currentChar == '.');
   bool hasDecimal = isDecimal;
 
-  if (my_isdigit(*currentChar) || *currentChar == '.')
+  if (my_isdigit(*currentChar) || isDecimal)
   {
+    currentToken->type = TokenType::INTEGER;
+    int i = 0;
+    bool hasDigits = false;
 
-    if (isDecimal && !my_isdigit(*(currentChar + 1))) {
-      currentToken->type = TokenType::UNKNOWN;
-      ++currentChar;
-    } else {
-      currentToken->type = TokenType::INTEGER;
-      int i = 0;
-
-      while (my_isdigit(*currentChar) || *currentChar == '.')
+    while (my_isdigit(*currentChar) || *currentChar == '.')
+    {
+      if (*currentChar == '.')
       {
-        if (*currentChar == '.')
+        if (!hasDigits)
         {
-          if (hasDecimal)
-          {
-            currentToken->type = TokenType::UNKNOWN;
-            break;
-          }
-
-          hasDecimal = true;
+          currentToken->type = TokenType::UNKNOWN;
+          break;
+        }
+        
+        if (hasDecimal)
+        {
+          currentToken->type = TokenType::INTEGER;
+          break;
         }
 
-        currentToken->lexeme[i++] = *currentChar++;
+        hasDecimal = true;
       }
 
-      currentToken->lexeme[i] = '\0';
+      if (my_isdigit(*currentChar))
+        hasDigits = true;
 
-      if (hasDecimal)
-        currentToken->type = TokenType::DECIMAL;
+      currentToken->lexeme[i++] = *currentChar++;
     }
 
-    ++currentToken;
+    currentToken->lexeme[i] = '\0';
+
+    if (hasDecimal)
+      currentToken->type = TokenType::DECIMAL;
   }
+
+  ++currentToken;
 }
 
 void Lexer::scanOperators(const char *&currentChar, Token *&currentToken)

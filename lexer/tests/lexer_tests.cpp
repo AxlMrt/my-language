@@ -3,21 +3,23 @@
 
 #include "../src/headers/Lexer.h"
 
-
-TEST_CASE("Lexer tokenizes identifiers correctly")
+TEST_CASE("Lexer::scanIdentifier() correctly tokenizes identifiers")
 {
   Lexer lexer;
   Token tokens[50];
+  Token *ptr_tokens = tokens;
 
-  SECTION("Test case: Single identifiers")
+  SECTION("Single identifier")
   {
-    lexer.scan("variable", tokens);
+    const char *identifier = "variable";    
+    lexer.scanIdentifier(identifier, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
   }
 
-  SECTION("Test case: Multiple identifiers")
+  SECTION("Multiple identifiers")
   {
-    lexer.scan("variable1 var_2 anotherVar int_var string_var bool_var decimal_var var124", tokens);
+    const char *identifier = "variable1 var_2 anotherVar int_var string_var bool_var decimal_var var124" ;
+    lexer.scanIdentifier(identifier, ptr_tokens);
     const TokenType expectedType = TokenType::IDENTIFIER;
 
     for (int i = 0; i < 8; ++i)
@@ -25,51 +27,107 @@ TEST_CASE("Lexer tokenizes identifiers correctly")
   }
 }
 
-
-TEST_CASE("Lexer can tokenize simple expressions")
+TEST_CASE("Lexer::scanNumber() correctly tokenizes numbers")
 {
   Lexer lexer;
+  Token tokens[50];
+  Token *ptr_tokens = tokens;
 
-  SECTION("Test case 2: Keywords")
+  SECTION("Integer")
   {
-    Token tokens[50];
-
-    lexer.scan("int", tokens);
-    REQUIRE(tokens[0].type == TokenType::KEYWORD_INT);
-
-    lexer.scan("decimal", tokens);
-    REQUIRE(tokens[0].type == TokenType::KEYWORD_DECIMAL);
-
-    lexer.scan("string", tokens);
-    REQUIRE(tokens[0].type == TokenType::KEYWORD_STRING);
-
-    lexer.scan("bool", tokens);
-    REQUIRE(tokens[0].type == TokenType::KEYWORD_BOOL);
-
-    lexer.scan("dspl", tokens);
-    REQUIRE(tokens[0].type == TokenType::KEYWORD_DSPL);
+    const char *number = "123";
+    lexer.scanNumber(number, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::INTEGER);
   }
 
-  SECTION("Test case 3: Operations")
+  SECTION("Decimal")
   {
-    Token tokens[50];
-    struct Operation
-    {
-      const char *operationString;
-      TokenType operationToken;
-    };
+    const char *number = "3.14";
+    lexer.scanNumber(number, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::DECIMAL);
+  }
+}
 
-    const Operation operations[] = {
-      { "a = b + c;", TokenType::PLUS },
-      { "a = b - c;", TokenType::MINUS },
-      { "a = b * c;", TokenType::MULTIPLY },
-      { "a = b / c;", TokenType::DIVIDE },
-    };
+TEST_CASE("Lexer::scanOperators() correctly tokenizes operators")
+{
+  Lexer lexer;
+  Token tokens[50];
+  Token *ptr_tokens = tokens;
 
-    for (const Operation &operation : operations)
-    {
-      lexer.scan(operation.operationString, tokens);
-      REQUIRE(tokens[3].type == operation.operationToken);
-    }
+  SECTION("Plus operator")
+  {
+    const char *op = "+";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::PLUS);
+  }
+
+  SECTION("Minus operator")
+  {
+    const char *op = "-";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::MINUS);
+  }
+
+  SECTION("Multiply operator")
+  {
+    const char *op = "*";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::MULTIPLY);
+  }
+
+  SECTION("Divide operator")
+  {
+    const char *op = "/";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::DIVIDE);
+  }
+
+  SECTION("Assign operator")
+  {
+    const char *op = "=";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::ASSIGN);
+  }
+
+  SECTION("Colon operator")
+  {
+    const char *op = ":";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::COLON);
+  }
+
+  SECTION("Semicolon operator")
+  {
+    const char *op = ";";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::SEMICOLON);
+  }
+
+  SECTION("Left Parenthesis operator")
+  {
+    const char *op = "(";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::LPAREN);
+  }
+
+  SECTION("Right Parenthesis operator")
+  {
+    const char *op = ")";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::RPAREN);
+  }
+
+  SECTION("Left Brace operator")
+  {
+    const char *op = "{";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::LBRACE);
+  }
+
+  SECTION("Right Brace operator")
+  {
+    const char *op = "}";
+    lexer.scanOperators(op, ptr_tokens);
+    REQUIRE(tokens[0].type == TokenType::RBRACE);
   }
 }

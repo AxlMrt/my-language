@@ -1,6 +1,6 @@
 #include <unordered_map>
-#include "headers/Lexer.h"
-#include "headers/Utils.h"
+#include "../include/Lexer.h"
+#include "../include/Utils.h"
 
 Lexer::Lexer() {}
 
@@ -12,7 +12,6 @@ void Lexer::scanIdentifier(const char *&currentChar, Token *&currentToken)
   while (my_isalnum(*currentChar) || *currentChar == '_')
     currentToken->lexeme[i++] = *currentChar++;
   
-
   currentToken->lexeme[i] = '\0';
   ++currentToken;
 }

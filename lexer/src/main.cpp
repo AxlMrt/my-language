@@ -1,9 +1,8 @@
 #include <iostream>
 #include <fstream>
-#include "headers/Lexer.h"
+#include "../include/Lexer.h"
 
 using namespace std;
-
 
 const char *tokenNames[] = {
     "IDENTIFIER",

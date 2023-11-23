@@ -13,32 +13,23 @@ enum class TokenType
   STRING,
   CHARACTER,
   BOOLEAN,
-  POINTER,
-  REFERENCE,
   PLUS,
   MINUS,
   MULTIPLY,
   DIVIDE,
   SEMICOLON,
   COLON,
+  COMMA,
   LPAREN,
   RPAREN,
   LBRACE,
   RBRACE,
   ASSIGN,
   UNKNOWN,
-  KEYWORD_CONST,
   KEYWORD_INT,
   KEYWORD_DECIMAL,
   KEYWORD_BOOL,
   KEYWORD_STRING,
-  KEYWORD_FOR,
-  KEYWORD_WHILE,
-  KEYWORD_DO,
-  KEYWORD_IF,
-  KEYWORD_ELSE,
-  KEYWORD_FUNCTION,
-  KEYWORD_RETURN,
   KEYWORD_DSPL,
   END_OF_FILE,
   // Fine for now
@@ -55,6 +46,12 @@ class Lexer
   public:
     Lexer();
 
+    //Get tokens
+    bool getNextToken(Token &token);
+    Token *getAllTokens(int &tokensCount);
+    void revertToPreviousToken();
+
+    // Analyze tokens
     void scan(const char *sourceCode, Token *tokens);
     void scanIdentifier(const char *&currentChar, Token *&currentToken);
     void scanNumber(const char *&currentChar, Token *&currentToken);
@@ -63,6 +60,10 @@ class Lexer
     void scanOperators(const char *&currentChar, Token *&currentToken);
     void scanKeywords(const char *&currentChar, Token *&currentToken);
 
+  private:
+    Token tokens[MAX_TOKENS];
+    int tokensCount;
+    int currentTokenIndex;
 };
 
 #endif

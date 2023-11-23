@@ -2,8 +2,31 @@
 #include "../include/Lexer.h"
 #include "../include/Utils.h"
 
-Lexer::Lexer() {}
+Lexer::Lexer() : tokensCount(0), currentTokenIndex(0) {}
 
+//GET tokens
+bool Lexer::getNextToken(Token& token)
+{
+  if (currentTokenIndex < tokensCount) {
+    token = tokens[currentTokenIndex++];
+    return true;
+  }
+  return false;
+}
+
+Token *Lexer::getAllTokens(int &tokensCount)
+{
+  tokensCount = this->tokensCount;
+  return tokens;
+}
+
+void Lexer::revertToPreviousToken()
+{
+  if (currentTokenIndex > 0)
+    --currentTokenIndex;
+}
+
+//ANALYZE TOKENS
 void Lexer::scanIdentifier(const char *&currentChar, Token *&currentToken)
 {
   currentToken->type = TokenType::IDENTIFIER;

@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
-#include "../src/headers/Lexer.h"
+#include "../include/Lexer.h"
 
 TEST_CASE("Lexer::scanIdentifier() correctly tokenizes identifiers")
 {

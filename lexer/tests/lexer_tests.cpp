@@ -317,6 +317,33 @@ TEST_CASE("Lexer::scanBool() test cases")
   }
 }
 
+TEST_CASE("Lexer::scanWhiteSpaceAndComment() tests") {
+    Lexer lexer;
+
+    SECTION("Skipping white spaces") {
+        const char* sourceCode = "     a + b";
+        lexer.scanWhiteSpaceAndComment(sourceCode);
+        REQUIRE(*sourceCode == 'a');
+    }
+
+    SECTION("Skipping comments") {
+        const char* sourceCode = "# This is a comment\na + b";
+        lexer.scanWhiteSpaceAndComment(sourceCode);
+        REQUIRE(*sourceCode == 'a');
+    }
+
+    SECTION("Skipping both white spaces and comments") {
+        const char* sourceCode = "     # Comment\na + b";
+        lexer.scanWhiteSpaceAndComment(sourceCode);
+        REQUIRE(*sourceCode == 'a');
+    }
+
+    SECTION("Skipping no spaces or comments") {
+        const char* sourceCode = "a + b";
+        lexer.scanWhiteSpaceAndComment(sourceCode);
+        REQUIRE(*sourceCode == 'a');
+    }
+}
 
 TEST_CASE("Lexer::scan() test cases") {
     Lexer lexer;
@@ -343,7 +370,7 @@ TEST_CASE("Lexer::scan() test cases") {
     }
 
     SECTION("Ignored comments") {
-        const char* sourceCode = "a + b # comment\n c * 123";
+        const char* sourceCode = "a + b # comment\nc * 123";
         lexer.scan(sourceCode, tokens);
 
         // Vérifie que les commentaires sont ignorés et les tokens sont identifiés correctement

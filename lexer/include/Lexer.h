@@ -53,13 +53,14 @@ class Lexer
 
     // Analyze tokens
     void scan(const char *sourceCode, Token *tokens);
-    void scanWhiteSpaceAndComment(const char *currentChar);
-    void scanBool(const char *currentChar, Token *currentToken);
-    void scanNumber(const char *currentChar, Token *currentToken);
-    void scanStrings(const char *currentChar, Token *currentToken);
-    void scanKeywords(const char *currentChar, Token *currentToken);
-    void scanOperators(const char *currentChar, Token *currentToken);
-    void scanIdentifier(const char *currentChar, Token *currentToken);
+    void scanWhiteSpaceAndComment(const char *&currentChar);
+    void scanBool(const char *&currentChar, Token *currentToken);
+    void scanNumber(const char *&currentChar, Token *currentToken);
+    void scanStrings(const char *&currentChar, Token *currentToken);
+    void scanKeywords(const char *&currentChar, Token *currentToken);
+    void scanOperators(const char *&currentChar, Token *currentToken);
+    void scanIdentifier(const char *&currentChar, Token *currentToken);
+    void scanIdentifierOrKeyword(const char *&currentChar, Token *currentToken);
   private:
     int tokensCount;
     int currentTokenIndex;

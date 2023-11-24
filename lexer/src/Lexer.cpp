@@ -1,3 +1,4 @@
+#include <iostream>
 #include <unordered_map>
 #include "../include/Lexer.h"
 #include "../include/Utils.h"
@@ -27,23 +28,22 @@ void Lexer::revertToPreviousToken()
 }
 
 //ANALYZE TOKENS
-void Lexer::scanIdentifier(const char *currentChar, Token *currentToken)
+void Lexer::scanIdentifier(const char *&currentChar, Token *currentToken)
 {
   currentToken->type = TokenType::IDENTIFIER;
-  int i = 0;
-  
-  currentToken->lexeme = createLexeme(currentChar, currentChar);
+ 
+  const char *start = currentChar;
 
   while (my_isalnum(*currentChar) || *currentChar == '_')
-    currentToken->lexeme[i++] = *currentChar++;
-  
-  currentToken->lexeme[i] = '\0';
+    ++currentChar;
+
+  currentToken->lexeme = createLexeme(start, currentChar);
   ++currentToken;
 }
 
 
 
-void Lexer::scanNumber(const char *currentChar, Token *currentToken)
+void Lexer::scanNumber(const char *&currentChar, Token *currentToken)
 {
   bool isNegative = (*currentChar == '-');
   bool isDecimal = false;
@@ -100,7 +100,7 @@ void Lexer::scanNumber(const char *currentChar, Token *currentToken)
   currentToken->lexeme = createLexeme(start, end);
 }
 
-void Lexer::scanOperators(const char *currentChar, Token *currentToken)
+void Lexer::scanOperators(const char *&currentChar, Token *currentToken)
 {
   const std::unordered_map<char, TokenType> operators = {
     {'+', TokenType::PLUS},
@@ -126,7 +126,7 @@ void Lexer::scanOperators(const char *currentChar, Token *currentToken)
   }
 }
 
-void Lexer::scanKeywords(const char *currentChar, Token *currentToken)
+void Lexer::scanKeywords(const char *&currentChar, Token *currentToken)
 {
   if (my_strncmp(currentChar, "int", 3) == 0 && !my_isalnum(currentChar[3]))
   {
@@ -169,7 +169,7 @@ void Lexer::scanKeywords(const char *currentChar, Token *currentToken)
 }
 
 
-void Lexer::scanStrings(const char *currentChar, Token *currentToken)
+void Lexer::scanStrings(const char *&currentChar, Token *currentToken)
 {
   if (*currentChar == '"')
   {
@@ -195,7 +195,7 @@ void Lexer::scanStrings(const char *currentChar, Token *currentToken)
   }
 }
 
-void Lexer::scanBool(const char *currentChar, Token *currentToken)
+void Lexer::scanBool(const char *&currentChar, Token *currentToken)
 {
   if (*currentChar == 't' || *currentChar == 'f')
   {
@@ -213,8 +213,7 @@ void Lexer::scanBool(const char *currentChar, Token *currentToken)
   }
 }
 
-
-void Lexer::scanWhiteSpaceAndComment(const char *currentChar)
+void Lexer::scanWhiteSpaceAndComment(const char *&currentChar)
 {
   while (my_isspace(*currentChar) || *currentChar == '#')
   {
@@ -227,38 +226,36 @@ void Lexer::scanWhiteSpaceAndComment(const char *currentChar)
   }
 }
 
-
 void Lexer::scan(const char *sourceCode, Token *tokens)
 {
   const char *currentChar = sourceCode;
   Token *currentToken = tokens;
 
-  while (*currentChar != '\0' && currentToken - tokens < MAX_TOKENS - 1)
+  while (*currentChar != '\0')
   {
-    if (my_isspace(*currentChar) || *currentChar == '#')
-      scanWhiteSpaceAndComment(currentChar);
+    if (currentToken - tokens >= MAX_TOKENS - 1)
+      break;
 
-    if (my_isdigit(*currentChar) || *currentChar == '-')
-      scanNumber(currentChar, currentToken);
-    
-    if (*currentChar == '"')
+    if (my_isspace(*currentChar) || *currentChar == '#') {
+      scanWhiteSpaceAndComment(currentChar);
+    } else if (*currentChar == '"') {
       scanStrings(currentChar, currentToken);
-    
-    if (*currentChar == 't' || *currentChar == 'f')
+    } else if (*currentChar == 't' || *currentChar == 'f') {
       scanBool(currentChar, currentToken);
-    
-    if (my_isoperator(*currentChar))
-      scanOperators(currentChar, currentToken);
-    
-    if (my_isalpha(*currentChar)) {
+    } else if (my_isdigit(*currentChar) || *currentChar == '-') {
+      scanNumber(currentChar, currentToken);
+    } else if (my_isalpha(*currentChar)) {
       scanKeywords(currentChar, currentToken);
       scanIdentifier(currentChar, currentToken);
+    } else if (my_isoperator(*currentChar)) {
+      scanOperators(currentChar, currentToken);
     } else {
       currentToken->type = TokenType::UNKNOWN;
       currentToken->lexeme = createLexeme("Invalid", "Invalid");
     }
-
+       std::cout << "Token at index " << (currentToken - tokens) << " is of type: " << static_cast<int>(currentToken->type) << std::endl; // Affichage temporaire
     ++currentChar;
+    ++currentToken;
   }
 
   currentToken->type = TokenType::END_OF_FILE;

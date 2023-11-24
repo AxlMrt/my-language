@@ -1,4 +1,5 @@
 #define CATCH_CONFIG_MAIN
+#include <iostream>
 #include <catch2/catch.hpp>
 
 #include "../include/Lexer.h"
@@ -187,4 +188,192 @@ TEST_CASE("Lexer::scanOperators() correctly tokenizes operators")
     lexer.scanOperators(op, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::RBRACE);
   }
+}
+
+TEST_CASE("Lexer::scanKeywords() test cases")
+{
+  Lexer lexer;
+  Token tokens[MAX_TOKENS];
+
+  SECTION("Identify 'int' keyword")
+  {
+    const char *sourceCode = "int";
+    const char *currentChar = sourceCode;
+
+    lexer.scanKeywords(currentChar, tokens);
+
+    REQUIRE(tokens[0].type == TokenType::KEYWORD_INT);
+    REQUIRE(strcmp(tokens[0].lexeme, "int") == 0);
+  }
+
+  SECTION("Identify 'decimal' keyword in a larger context")
+  {
+    const char *sourceCode = "int decimal x";
+    const char *currentChar = sourceCode + 4;
+
+    lexer.scanKeywords(currentChar, tokens + 1);
+
+    REQUIRE(tokens[1].type == TokenType::KEYWORD_DECIMAL);
+    REQUIRE(strcmp(tokens[1].lexeme, "decimal") == 0);
+  }
+
+  SECTION("Identify 'string' keyword")
+  {
+    const char *sourceCode = "string x";
+    const char *currentChar = sourceCode;
+
+    lexer.scanKeywords(currentChar, tokens);
+
+    REQUIRE(tokens[0].type == TokenType::KEYWORD_STRING);
+    REQUIRE(strcmp(tokens[0].lexeme, "string") == 0);
+  }
+
+  SECTION("Identify 'bool' keyword at the end of the code")
+  {
+    const char *sourceCode = "x = true bool";
+    const char *currentChar = sourceCode + 9;
+
+    lexer.scanKeywords(currentChar, tokens);
+
+    REQUIRE(tokens[0].type == TokenType::KEYWORD_BOOL);
+    REQUIRE(strcmp(tokens[0].lexeme, "bool") == 0);
+  }
+
+  SECTION("Identify 'dspl' keyword with a mix of characters")
+  {
+    const char *sourceCode = "dspl;print(dspl)";
+    const char *currentChar = sourceCode;
+
+    lexer.scanKeywords(currentChar, tokens);
+
+    REQUIRE(tokens[0].type == TokenType::KEYWORD_DSPL);
+    REQUIRE(strcmp(tokens[0].lexeme, "dspl") == 0);
+  }
+}
+
+
+TEST_CASE("Lexer::scanStrings() test cases")
+{
+  Lexer lexer;
+  Token tokens[MAX_TOKENS];
+
+  SECTION("Identify a string")
+  {
+    const char *sourceCode = R"("This is a test string")";
+    const char *currentChar = sourceCode;
+
+    lexer.scanStrings(currentChar, tokens);
+
+    REQUIRE(tokens[0].type == TokenType::STRING);
+    REQUIRE(strcmp(tokens[0].lexeme, "This is a test string") == 0);
+  }
+
+  SECTION("Identify an empty string")
+  {
+    const char *sourceCode = R"("")";
+    const char *currentChar = sourceCode;
+
+    lexer.scanStrings(currentChar, tokens);
+
+    REQUIRE(tokens[0].type == TokenType::STRING);
+    REQUIRE(strcmp(tokens[0].lexeme, "") == 0);
+  }
+
+  SECTION("No closing quote - should not identify a string")
+  {
+    const char *sourceCode = R"("Unclosed string)";
+    const char *currentChar = sourceCode;
+
+    lexer.scanStrings(currentChar, tokens);
+
+    REQUIRE(tokens[0].type != TokenType::STRING);
+  }
+}
+
+TEST_CASE("Lexer::scanBool() test cases")
+{
+  Lexer lexer;
+  Token tokens[MAX_TOKENS];
+
+  SECTION("Identify 'true' boolean")
+  {
+    const char *sourceCode = "true";
+    const char *currentChar = sourceCode;
+
+    lexer.scanBool(currentChar, tokens);
+
+    REQUIRE(tokens[0].type == TokenType::BOOLEAN);
+    REQUIRE(strcmp(tokens[0].lexeme, "true") == 0);
+  }
+
+  SECTION("Identify 'false' boolean") {
+    const char *sourceCode = "false";
+    const char *currentChar = sourceCode;
+
+    lexer.scanBool(currentChar, tokens);
+
+    REQUIRE(tokens[0].type == TokenType::BOOLEAN);
+    REQUIRE(strcmp(tokens[0].lexeme, "false") == 0);
+  }
+}
+
+
+TEST_CASE("Lexer::scan() test cases") {
+    Lexer lexer;
+    Token tokens[MAX_TOKENS];
+
+    SECTION("Simple expression with identifiers and operators") {
+        const char* sourceCode = "a + b * 123";
+        lexer.scan(sourceCode, tokens);
+
+        // Vérifie les tokens identifiés dans l'expression simple
+        REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
+        REQUIRE(strcmp(tokens[0].lexeme, "a") == 0);
+        std::cout << tokens[0].lexeme << std::endl;
+
+        REQUIRE(tokens[1].type == TokenType::PLUS);
+
+        REQUIRE(tokens[2].type == TokenType::IDENTIFIER);
+        REQUIRE(strcmp(tokens[2].lexeme, "b") == 0);
+
+        REQUIRE(tokens[3].type == TokenType::MULTIPLY);
+
+        REQUIRE(tokens[4].type == TokenType::INTEGER);
+        REQUIRE(strcmp(tokens[4].lexeme, "123") == 0);
+    }
+
+    SECTION("Ignored comments") {
+        const char* sourceCode = "a + b # comment\n c * 123";
+        lexer.scan(sourceCode, tokens);
+
+        // Vérifie que les commentaires sont ignorés et les tokens sont identifiés correctement
+        REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
+        REQUIRE(strcmp(tokens[0].lexeme, "a") == 0);
+
+        REQUIRE(tokens[1].type == TokenType::PLUS);
+
+        REQUIRE(tokens[2].type == TokenType::IDENTIFIER);
+        REQUIRE(strcmp(tokens[2].lexeme, "b") == 0);
+
+        REQUIRE(tokens[3].type == TokenType::MULTIPLY);
+
+        REQUIRE(tokens[4].type == TokenType::IDENTIFIER);
+        REQUIRE(strcmp(tokens[4].lexeme, "c") == 0);
+
+        REQUIRE(tokens[5].type == TokenType::MULTIPLY);
+
+        REQUIRE(tokens[6].type == TokenType::INTEGER);
+        REQUIRE(strcmp(tokens[6].lexeme, "123") == 0);
+    }
+
+    SECTION("Empty source code") {
+        const char* sourceCode = "";
+        lexer.scan(sourceCode, tokens);
+
+        // Vérifie qu'aucun token n'est généré pour une chaîne vide
+        REQUIRE(tokens[0].type == TokenType::END_OF_FILE);
+        REQUIRE(strcmp(tokens[0].lexeme, "") == 0);
+    }
+
+    // Ajoute d'autres sections pour les autres scénarios de test...
 }

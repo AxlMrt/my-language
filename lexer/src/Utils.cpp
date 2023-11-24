@@ -10,6 +10,11 @@ bool my_isdigit(char ch)
   return (ch >= '0' && ch <= '9');
 }
 
+bool my_isoperator(char ch)
+{
+  return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '=' || ch == ':' || ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}';
+}
+
 void my_strcpy(char *dest, const char *src)
 {
   while (*src != '\0')

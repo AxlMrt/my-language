@@ -27,10 +27,10 @@ enum class TokenType
   ASSIGN,
   UNKNOWN,
   KEYWORD_INT,
-  KEYWORD_DECIMAL,
   KEYWORD_BOOL,
-  KEYWORD_STRING,
   KEYWORD_DSPL,
+  KEYWORD_STRING,
+  KEYWORD_DECIMAL,
   END_OF_FILE,
   // Fine for now
 };
@@ -47,26 +47,26 @@ class Lexer
     Lexer();
 
     //Get tokens
+    void revertToPreviousToken();
     bool getNextToken(Token &token);
     Token *getAllTokens(int &tokensCount);
-    void revertToPreviousToken();
 
     // Analyze tokens
     void scan(const char *sourceCode, Token *tokens);
-    void scanIdentifier(const char *&currentChar, Token *&currentToken);
-    void scanNumber(const char *&currentChar, Token *&currentToken);
-    void scanStrings(const char *&currentChar, Token *&currentToken);
-    void scanBool(const char *&currentChar, Token *&currentToken);
-    void scanOperators(const char *&currentChar, Token *&currentToken);
-    void scanKeywords(const char *&currentChar, Token *&currentToken);
-
+    void scanWhiteSpaceAndComment(const char *currentChar);
+    void scanBool(const char *currentChar, Token *currentToken);
+    void scanNumber(const char *currentChar, Token *currentToken);
+    void scanStrings(const char *currentChar, Token *currentToken);
+    void scanKeywords(const char *currentChar, Token *currentToken);
+    void scanOperators(const char *currentChar, Token *currentToken);
+    void scanIdentifier(const char *currentChar, Token *currentToken);
   private:
-    Token tokens[MAX_TOKENS];
     int tokensCount;
     int currentTokenIndex;
+    Token tokens[MAX_TOKENS];
 
     // Utility functions
-    char* createLexeme(const char* start, const char* end);
+    char *createLexeme(const char *start, const char *end);
 };
 
 #endif

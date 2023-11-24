@@ -21,6 +21,15 @@ void my_strcpy(char *dest, const char *src)
   *dest = '\0';
 }
 
+void my_strncpy(char *dest, const char *src, int n)
+{
+  for (int i = 0; i < n; i++)
+  {
+    dest[i] = src[i];
+    if (src[i] == '\0') break;
+  }
+}
+
 bool my_isalpha(char ch)
 {
   return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_';

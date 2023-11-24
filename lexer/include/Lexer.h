@@ -38,7 +38,7 @@ enum class TokenType
 struct Token
 {
   TokenType type;
-  char lexeme[MAX_LEXEME_SIZE];
+  char *lexeme;
 };
 
 class Lexer
@@ -64,6 +64,9 @@ class Lexer
     Token tokens[MAX_TOKENS];
     int tokensCount;
     int currentTokenIndex;
+
+    // Utility functions
+    char* createLexeme(const char* start, const char* end);
 };
 
 #endif

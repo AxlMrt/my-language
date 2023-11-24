@@ -31,6 +31,8 @@ void Lexer::scanIdentifier(const char *&currentChar, Token *&currentToken)
 {
   currentToken->type = TokenType::IDENTIFIER;
   int i = 0;
+  
+  currentToken->lexeme = createLexeme(currentChar, currentChar);
 
   while (my_isalnum(*currentChar) || *currentChar == '_')
     currentToken->lexeme[i++] = *currentChar++;
@@ -40,61 +42,62 @@ void Lexer::scanIdentifier(const char *&currentChar, Token *&currentToken)
 }
 
 
-void Lexer::scanNumber(const char *&currentChar, Token *&currentToken)
+
+void Lexer::scanNumber(const char*& currentChar, Token*& currentToken)
 {
-    bool isNegative = (*currentChar == '-');
-    bool isDecimal = false;
-    bool hasDecimal = false;
-    bool hasDigits = false;
-    bool hasNonZeroAfterDecimal = false;
+  bool isNegative = (*currentChar == '-');
+  bool isDecimal = false;
+  bool hasDecimal = false;
+  bool hasDigits = false;
+  bool hasNonZeroAfterDecimal = false;
 
-    int i = 0;
-    char buffer[MAX_LEXEME_SIZE] = {0};
+  const char* start = currentChar; // start pointer for lexeme
 
-    if (isNegative)
-        buffer[i++] = *currentChar++;
+  if (isNegative)
+    ++currentChar;
 
-    while (my_isdigit(*currentChar) || *currentChar == '.')
-    {
-        if (*currentChar == '.') {
-            if (!hasDigits)
-            {
-                currentToken->type = TokenType::INTEGER;
-                break;
-            }
-
-            if (hasDecimal)
-            {
-                currentToken->type = isNegative ? TokenType::DECIMAL : TokenType::INTEGER;
-                break;
-            }
-
-            isDecimal = true;
-            hasDecimal = true;
-        } else {
-            hasDigits = true;
-            if (isDecimal)
-                hasNonZeroAfterDecimal = true;
-        }
-
-        buffer[i++] = *currentChar++;
-    }
-
-    if (!hasDigits && !hasDecimal) {
+  while (my_isdigit(*currentChar) || *currentChar == '.')
+  {
+    if (*currentChar == '.') {
+      if (!hasDigits)
+      {
         currentToken->type = TokenType::UNKNOWN;
-        my_strcpy(currentToken->lexeme, "Invalid");
+        currentToken->lexeme = createLexeme("Invalid", "Invalid");
+        return;
+      }
+
+      if (hasDecimal)
+      {
+        currentToken->type = isNegative ? TokenType::DECIMAL : TokenType::INTEGER;
+        break;
+      }
+
+      isDecimal = true;
+      hasDecimal = true;
     } else {
-        buffer[i] = '\0';
-
-        if (isDecimal && !hasNonZeroAfterDecimal)
-            currentToken->type = TokenType::INTEGER;
-        else
-            currentToken->type = isDecimal ? (isNegative ? TokenType::DECIMAL : TokenType::DECIMAL) : (isNegative ? TokenType::INTEGER : TokenType::INTEGER);
-
-        my_strcpy(currentToken->lexeme, buffer);
+      hasDigits = true;
+      if (isDecimal)
+        hasNonZeroAfterDecimal = hasNonZeroAfterDecimal || (*currentChar != '0');
     }
 
-    ++currentToken;
+    ++currentChar;
+  }
+
+  const char* end = currentChar; // End pointer for lexem
+
+  if (!hasDigits && !hasDecimal)
+  {
+    currentToken->type = TokenType::UNKNOWN;
+    currentToken->lexeme = createLexeme("Invalid", "Invalid");
+    return;
+  }
+
+  if (isDecimal && !hasNonZeroAfterDecimal)
+    currentToken->type = TokenType::INTEGER; // Decimal without digits after = integer
+  else
+    currentToken->type = isDecimal ? (isNegative ? TokenType::DECIMAL : TokenType::DECIMAL) : (isNegative ? TokenType::INTEGER : TokenType::INTEGER);
+
+  currentToken->lexeme = createLexeme(start, end);
 }
 
 void Lexer::scanOperators(const char *&currentChar, Token *&currentToken)
@@ -107,6 +110,7 @@ void Lexer::scanOperators(const char *&currentChar, Token *&currentToken)
     {'=', TokenType::ASSIGN},
     {':', TokenType::COLON},
     {';', TokenType::SEMICOLON},
+    {',', TokenType::COMMA},
     {'(', TokenType::LPAREN},
     {')', TokenType::RPAREN},
     {'{', TokenType::LBRACE},
@@ -116,8 +120,7 @@ void Lexer::scanOperators(const char *&currentChar, Token *&currentToken)
   if (operators.find(*currentChar) != operators.end())
   {
     currentToken->type = operators.at(*currentChar);
-    currentToken->lexeme[0] = *currentChar;
-    currentToken->lexeme[1] = '\0';
+    currentToken->lexeme = createLexeme(currentChar, currentChar + 1);
     ++currentToken;
     ++currentChar;
   }
@@ -128,7 +131,7 @@ void Lexer::scanKeywords(const char *&currentChar, Token *&currentToken)
   if (my_strncmp(currentChar, "int", 3) == 0 && !my_isalnum(currentChar[3]))
   {
     currentToken->type = TokenType::KEYWORD_INT;
-    my_strcpy(currentToken->lexeme, "int");
+    currentToken->lexeme = createLexeme(currentChar, currentChar + 3);
     currentChar += 3;
     ++currentToken;
   }
@@ -136,7 +139,7 @@ void Lexer::scanKeywords(const char *&currentChar, Token *&currentToken)
   if (my_strncmp(currentChar, "decimal", 7) == 0 && !my_isalnum(currentChar[7]))
   {
     currentToken->type = TokenType::KEYWORD_DECIMAL;
-    my_strcpy(currentToken->lexeme, "decimal");
+    currentToken->lexeme = createLexeme(currentChar, currentChar + 7);
     currentChar += 7;
     ++currentToken;
   }
@@ -144,7 +147,7 @@ void Lexer::scanKeywords(const char *&currentChar, Token *&currentToken)
   if (my_strncmp(currentChar, "string", 6) == 0 && !my_isalnum(currentChar[6]))
   {
     currentToken->type = TokenType::KEYWORD_STRING;
-    my_strcpy(currentToken->lexeme, "string");
+    currentToken->lexeme = createLexeme(currentChar, currentChar + 6);
     currentChar += 6;
     ++currentToken;
   }
@@ -152,14 +155,14 @@ void Lexer::scanKeywords(const char *&currentChar, Token *&currentToken)
   if (my_strncmp(currentChar, "bool", 4) == 0 && !my_isalnum(currentChar[4]))
   {
     currentToken->type = TokenType::KEYWORD_BOOL;
-    my_strcpy(currentToken->lexeme, "bool");
+    currentToken->lexeme = createLexeme(currentChar, currentChar + 4);
     currentChar += 4;
     ++currentToken;
   }
 
   if (my_strncmp(currentChar, "dspl", 4) == 0 && !my_isalnum(currentChar[4])) {
     currentToken->type = TokenType::KEYWORD_DSPL;
-    my_strcpy(currentToken->lexeme, "dspl");
+    currentToken->lexeme = createLexeme(currentChar, currentChar + 4);
     currentChar += 4;
     ++currentToken;
   }
@@ -172,6 +175,8 @@ void Lexer::scanStrings(const char *&currentChar, Token *&currentToken)
     ++currentChar;
     currentToken->type = TokenType::STRING;
     int i = 0;
+    
+    currentToken->lexeme = createLexeme(currentChar, currentChar);
 
     while (*currentChar != '"' && *currentChar != '\0')
       currentToken->lexeme[i++] = *currentChar++;
@@ -190,12 +195,12 @@ void Lexer::scanBool(const char *&currentChar, Token *&currentToken)
   {
     if (*(currentChar + 1) == 'r' && *(currentChar + 2) == 'u' && *(currentChar + 3) == 'e') {
       currentToken->type = TokenType::BOOLEAN;
-      my_strcpy(currentToken->lexeme, "true");
+      currentToken->lexeme = createLexeme(currentChar, currentChar + 4);
       currentChar += 4;
       ++currentToken;
     } else if (*(currentChar + 1) == 'a' && *(currentChar + 2) == 'l' && *(currentChar + 3) == 's' && *(currentChar + 4) == 'e') {
       currentToken->type = TokenType::BOOLEAN;
-      my_strcpy(currentToken->lexeme, "false");
+      currentToken->lexeme = createLexeme(currentChar, currentChar + 5);
       currentChar += 5;
       ++currentToken;
     }
@@ -239,5 +244,18 @@ void Lexer::scan(const char *sourceCode, Token *tokens)
   }
 
   currentToken->type = TokenType::END_OF_FILE;
-  my_strcpy(currentToken->lexeme, "EOF");
+  currentToken->lexeme = createLexeme("EOF", "");
+}
+
+char* Lexer::createLexeme(const char* start, const char* end)
+{
+  int lexemeSize = end - start;
+  if (lexemeSize >= MAX_LEXEME_SIZE)
+    return nullptr;
+
+  char* lexeme = new char[lexemeSize + 1];
+  my_strncpy(lexeme, start, lexemeSize);
+  lexeme[lexemeSize] = '\0';
+
+  return lexeme;
 }

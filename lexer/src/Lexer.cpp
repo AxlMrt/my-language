@@ -1,47 +1,42 @@
 #include <iostream>
+#include <fstream>
 #include <unordered_map>
 #include "../include/Lexer.h"
 #include "../include/Utils.h"
 
-Lexer::Lexer() : tokensCount(0), currentTokenIndex(0) {}
+using namespace std;
 
-//GET tokens
-bool Lexer::getNextToken(Token& token)
-{
-  if (currentTokenIndex < tokensCount) {
-    token = tokens[currentTokenIndex++];
-    return true;
-  }
-  return false;
-}
+Lexer::Lexer() {}
+Lexer::~Lexer() {}
 
-Token *Lexer::getAllTokens(int &tokensCount)
+void Lexer::scanIdentifierOrKeywords(const char *&currentChar, Token *currentToken)
 {
-  tokensCount = this->tokensCount;
-  return tokens;
-}
-
-void Lexer::revertToPreviousToken()
-{
-  if (currentTokenIndex > 0)
-    --currentTokenIndex;
-}
-
-//ANALYZE TOKENS
-void Lexer::scanIdentifier(const char *&currentChar, Token *currentToken)
-{
-  currentToken->type = TokenType::IDENTIFIER;
- 
   const char *start = currentChar;
 
   while (my_isalnum(*currentChar) || *currentChar == '_')
     ++currentChar;
 
-  currentToken->lexeme = createLexeme(start, currentChar);
-  ++currentToken;
+  int lexemeLength = currentChar - start;
+  char *lexeme = createLexeme(start, currentChar);
+
+  std::unordered_map<std::string, TokenType> keywords = {
+      {"int", TokenType::KEYWORD_INT},
+      {"bool", TokenType::KEYWORD_BOOL},
+      {"dspl", TokenType::KEYWORD_DSPL},
+      {"string", TokenType::KEYWORD_STRING},
+      {"decimal", TokenType::KEYWORD_DECIMAL}
+  };
+
+  // Recherche dans le dictionnaire si le lexème correspond à un mot-clé
+  auto it = keywords.find(std::string(lexeme, lexemeLength));
+  if (it != keywords.end()) {
+    currentToken->type = it->second;
+    currentToken->lexeme = lexeme;
+  } else {
+    currentToken->type = TokenType::IDENTIFIER;
+    currentToken->lexeme = lexeme;
+  }
 }
-
-
 
 void Lexer::scanNumber(const char *&currentChar, Token *currentToken)
 {
@@ -98,6 +93,7 @@ void Lexer::scanNumber(const char *&currentChar, Token *currentToken)
     currentToken->type = isDecimal ? (isNegative ? TokenType::DECIMAL : TokenType::DECIMAL) : (isNegative ? TokenType::INTEGER : TokenType::INTEGER);
 
   currentToken->lexeme = createLexeme(start, end);
+  ++currentToken;
 }
 
 void Lexer::scanOperators(const char *&currentChar, Token *currentToken)
@@ -123,48 +119,6 @@ void Lexer::scanOperators(const char *&currentChar, Token *currentToken)
     currentToken->lexeme = createLexeme(currentChar, currentChar + 1);
     ++currentToken;
     ++currentChar;
-  }
-}
-
-void Lexer::scanKeywords(const char *&currentChar, Token *currentToken)
-{
-  if (my_strncmp(currentChar, "int", 3) == 0 && !my_isalnum(currentChar[3]))
-  {
-    currentToken->type = TokenType::KEYWORD_INT;
-    currentToken->lexeme = createLexeme(currentChar, currentChar + 3);
-    currentChar += 3;
-    ++currentToken;
-  }
-
-  if (my_strncmp(currentChar, "decimal", 7) == 0 && !my_isalnum(currentChar[7]))
-  {
-    currentToken->type = TokenType::KEYWORD_DECIMAL;
-    currentToken->lexeme = createLexeme(currentChar, currentChar + 7);
-    currentChar += 7;
-    ++currentToken;
-  }
-
-  if (my_strncmp(currentChar, "string", 6) == 0 && !my_isalnum(currentChar[6]))
-  {
-    currentToken->type = TokenType::KEYWORD_STRING;
-    currentToken->lexeme = createLexeme(currentChar, currentChar + 6);
-    currentChar += 6;
-    ++currentToken;
-  }
-
-  if (my_strncmp(currentChar, "bool", 4) == 0 && !my_isalnum(currentChar[4]))
-  {
-    currentToken->type = TokenType::KEYWORD_BOOL;
-    currentToken->lexeme = createLexeme(currentChar, currentChar + 4);
-    currentChar += 4;
-    ++currentToken;
-  }
-
-  if (my_strncmp(currentChar, "dspl", 4) == 0 && !my_isalnum(currentChar[4])) {
-    currentToken->type = TokenType::KEYWORD_DSPL;
-    currentToken->lexeme = createLexeme(currentChar, currentChar + 4);
-    currentChar += 4;
-    ++currentToken;
   }
 }
 
@@ -222,55 +176,97 @@ void Lexer::scanWhiteSpaceAndComment(const char *&currentChar)
     } else if (*currentChar == '#') {
       while (*currentChar != '\n' && *currentChar != '\0')
         ++currentChar;
+
+      if (*currentChar == '\n')
+        ++currentChar;
     }
   }
-}
-
-void Lexer::scan(const char *sourceCode, Token *tokens)
-{
-  const char *currentChar = sourceCode;
-  Token *currentToken = tokens;
-
-  while (*currentChar != '\0')
-  {
-    if (currentToken - tokens >= MAX_TOKENS - 1)
-      break;
-
-    if (my_isspace(*currentChar) || *currentChar == '#') {
-      scanWhiteSpaceAndComment(currentChar);
-    } else if (*currentChar == '"') {
-      scanStrings(currentChar, currentToken);
-    } else if (*currentChar == 't' || *currentChar == 'f') {
-      scanBool(currentChar, currentToken);
-    } else if (my_isdigit(*currentChar) || *currentChar == '-') {
-      scanNumber(currentChar, currentToken);
-    } else if (my_isalpha(*currentChar)) {
-      scanKeywords(currentChar, currentToken);
-      scanIdentifier(currentChar, currentToken);
-    } else if (my_isoperator(*currentChar)) {
-      scanOperators(currentChar, currentToken);
-    } else {
-      currentToken->type = TokenType::UNKNOWN;
-      currentToken->lexeme = createLexeme("Invalid", "Invalid");
-    }
-       std::cout << "Token at index " << (currentToken - tokens) << " is of type: " << static_cast<int>(currentToken->type) << std::endl; // Affichage temporaire
-    ++currentChar;
-    ++currentToken;
-  }
-
-  currentToken->type = TokenType::END_OF_FILE;
-  currentToken->lexeme = createLexeme("", "");
 }
 
 char* Lexer::createLexeme(const char *start, const char *end)
 {
   int lexemeSize = end - start;
-  if (lexemeSize >= MAX_LEXEME_SIZE)
-    return nullptr;
-
   char* lexeme = new char[lexemeSize + 1];
-  my_strncpy(lexeme, start, lexemeSize);
-  lexeme[lexemeSize] = '\0';
 
+  for (int i = 0; i < lexemeSize; ++i)
+    lexeme[i] = start[i];
+
+  lexeme[lexemeSize] = '\0';
   return lexeme;
+}
+
+int Lexer::getTokenCount() const
+{
+    return tokenCount;
+}
+
+Token *Lexer::getTokenStream() const
+{
+    return tokenStream;
+}
+
+void Lexer::scan(const char *filename)
+{
+  std::ifstream file(filename);
+
+  if (!file.is_open())
+  {
+    cerr << "Erreur lors de l'ouverture du fichier " << filename << endl;
+    return;
+  }
+
+  const int INITIAL_CAPACITY = 10;  // Capacité initiale du tableau
+  tokenCount = 0;                   // Initialisation du compteur de tokens
+  maxTokens = INITIAL_CAPACITY;     // Initialisation de la capacité maximale
+
+  tokenStream = new Token[INITIAL_CAPACITY];  // Allocation initiale du tableau
+
+  char line[1000];  // Taille maximale d'une ligne dans le fichier
+
+  while (file.getline(line, 1000))
+  {
+    const char *currentChar = line;
+
+    while (*currentChar != '\0')
+    {
+      scanWhiteSpaceAndComment(currentChar);
+
+      if (*currentChar == '\0')
+        break;
+      
+      Token currentToken;
+      if (my_isdigit(*currentChar)) {
+        scanNumber(currentChar, &currentToken);
+      } else if (my_isalpha(*currentChar) || *currentChar == '_') {
+        scanIdentifierOrKeywords(currentChar, &currentToken);
+      } else if (my_isoperator(*currentChar)) {
+        scanOperators(currentChar, &currentToken);
+      } else if (*currentChar == '"') {
+        scanStrings(currentChar, &currentToken);
+      } else if (*currentChar == 't' || *currentChar == 'f') {
+        scanBool(currentChar, &currentToken);
+      } else {
+        currentToken.type = TokenType::UNKNOWN;
+        currentToken.lexeme = createLexeme(currentChar, currentChar + 1);
+        ++currentChar;
+      }
+
+      if (tokenCount >= maxTokens)
+      {  // Vérification de la capacité maximale atteinte
+        maxTokens *= 2;               // Double la capacité maximale
+        Token *temp = new Token[maxTokens];  // Nouvelle allocation avec la capacité doublée
+
+        for (int i = 0; i < tokenCount; ++i)
+          temp[i] = tokenStream[i];  // Copie les tokens actuels dans le nouveau tableau
+        
+        delete[] tokenStream;  // Libère l'ancien tableau
+        tokenStream = temp;    // Met à jour le pointeur pour pointer vers le nouveau tableau
+      }
+
+      // Ajoute le nouveau token à la fin du tableau
+      tokenStream[tokenCount++] = currentToken;
+    }
+  }
+
+  file.close();
 }

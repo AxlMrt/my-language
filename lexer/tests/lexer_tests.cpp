@@ -13,14 +13,14 @@ TEST_CASE("Lexer::scanIdentifier() correctly tokenizes identifiers")
   SECTION("Single identifier")
   {
     const char *identifier = "variable";    
-    lexer.scanIdentifier(identifier, ptr_tokens);
+    lexer.scanIdentifierOrKeyword(identifier, ptr_tokens);
     REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
   }
 
   SECTION("Multiple identifiers")
   {
     const char *identifier = "variable1 var_2 anotherVar int_var string_var bool_var DECIMAL_var var124" ;
-    lexer.scanIdentifier(identifier, ptr_tokens);
+    lexer.scanIdentifierOrKeyword(identifier, ptr_tokens);
     const TokenType expectedType = TokenType::IDENTIFIER;
 
     for (int i = 0; i < 8; ++i)
@@ -200,7 +200,7 @@ TEST_CASE("Lexer::scanKeywords() test cases")
     const char *sourceCode = "int";
     const char *currentChar = sourceCode;
 
-    lexer.scanKeywords(currentChar, tokens);
+    lexer.scanIdentifierOrKeyword(currentChar, tokens);
 
     REQUIRE(tokens[0].type == TokenType::KEYWORD_INT);
     REQUIRE(strcmp(tokens[0].lexeme, "int") == 0);
@@ -211,7 +211,7 @@ TEST_CASE("Lexer::scanKeywords() test cases")
     const char *sourceCode = "int decimal x";
     const char *currentChar = sourceCode + 4;
 
-    lexer.scanKeywords(currentChar, tokens + 1);
+    lexer.scanIdentifierOrKeyword(currentChar, tokens);
 
     REQUIRE(tokens[1].type == TokenType::KEYWORD_DECIMAL);
     REQUIRE(strcmp(tokens[1].lexeme, "decimal") == 0);
@@ -222,7 +222,7 @@ TEST_CASE("Lexer::scanKeywords() test cases")
     const char *sourceCode = "string x";
     const char *currentChar = sourceCode;
 
-    lexer.scanKeywords(currentChar, tokens);
+    lexer.scanIdentifierOrKeyword(currentChar, tokens);
 
     REQUIRE(tokens[0].type == TokenType::KEYWORD_STRING);
     REQUIRE(strcmp(tokens[0].lexeme, "string") == 0);
@@ -233,7 +233,7 @@ TEST_CASE("Lexer::scanKeywords() test cases")
     const char *sourceCode = "x = true bool";
     const char *currentChar = sourceCode + 9;
 
-    lexer.scanKeywords(currentChar, tokens);
+    lexer.scanIdentifierOrKeyword(currentChar, tokens);
 
     REQUIRE(tokens[0].type == TokenType::KEYWORD_BOOL);
     REQUIRE(strcmp(tokens[0].lexeme, "bool") == 0);
@@ -244,7 +244,7 @@ TEST_CASE("Lexer::scanKeywords() test cases")
     const char *sourceCode = "dspl;print(dspl)";
     const char *currentChar = sourceCode;
 
-    lexer.scanKeywords(currentChar, tokens);
+    lexer.scanIdentifierOrKeyword(currentChar, tokens);
 
     REQUIRE(tokens[0].type == TokenType::KEYWORD_DSPL);
     REQUIRE(strcmp(tokens[0].lexeme, "dspl") == 0);

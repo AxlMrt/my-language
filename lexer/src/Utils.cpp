@@ -12,7 +12,7 @@ bool my_isdigit(char ch)
 
 bool my_isoperator(char ch)
 {
-  return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '=' || ch == ':' || ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}';
+  return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '=' || ch == ':' || ch == ';' || ch == ',' || ch == '(' || ch == ')' || ch == '{' || ch == '}';
 }
 
 void my_strcpy(char *dest, const char *src)

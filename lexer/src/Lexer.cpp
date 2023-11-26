@@ -142,7 +142,6 @@ void Lexer::scanStrings(const char *&currentChar, Token *currentToken)
     else {
       currentToken->type = TokenType::UNKNOWN;
       currentToken->lexeme = createLexeme(start, currentChar);
-      return;
     }
 
     ++currentToken;
@@ -222,16 +221,16 @@ void Lexer::scan(const char *input)
         break;
       
       Token currentToken;
-      if (my_isdigit(*currentChar)) {
+      if ((*currentChar == '-' && my_isdigit(*(currentChar + 1))) || my_isdigit(*currentChar)) {
         scanNumber(currentChar, &currentToken);
+      } else if (*currentChar == 't' || *currentChar == 'f') {
+        scanBool(currentChar, &currentToken);
       } else if (my_isalpha(*currentChar) || *currentChar == '_') {
         scanIdentifierOrKeywords(currentChar, &currentToken);
       } else if (my_isoperator(*currentChar)) {
         scanOperators(currentChar, &currentToken);
       } else if (*currentChar == '"') {
         scanStrings(currentChar, &currentToken);
-      } else if (*currentChar == 't' || *currentChar == 'f') {
-        scanBool(currentChar, &currentToken);
       } else {
         currentToken.type = TokenType::UNKNOWN;
         currentToken.lexeme = createLexeme(currentChar, currentChar + 1);

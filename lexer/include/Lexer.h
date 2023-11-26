@@ -55,12 +55,12 @@ class Lexer
     void scanWhiteSpaceAndComment(const char *&currentChar);
     void scanBool(const char *&currentChar, Token *currentToken);
     bool readFile(const char *filename, char *&fileContent);
-    void scanIdentifierOrKeywords(const char *&currentChar, Token *currentToken);
     void scanNumber(const char *&currentChar, Token *currentToken);
     void scanStrings(const char *&currentChar, Token *currentToken);
     void scanKeywords(const char *&currentChar, Token *currentToken);
     void scanOperators(const char *&currentChar, Token *currentToken);
     void scanIdentifier(const char *&currentChar, Token *currentToken);
+    void scanIdentifierOrKeywords(const char *&currentChar, Token *currentToken);
 
     // Utility functions
     char *createLexeme(const char *start, const char *end);

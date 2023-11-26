@@ -205,30 +205,17 @@ Token *Lexer::getTokenStream() const
     return tokenStream;
 }
 
-void Lexer::scan(const char *filename)
+void Lexer::scan(const char *input)
 {
-  std::ifstream file(filename);
-
-  if (!file.is_open())
-  {
-    cerr << "Erreur lors de l'ouverture du fichier " << filename << endl;
-    return;
-  }
-
+  const char *currentChar = input;
   const int INITIAL_CAPACITY = 10;  // Capacité initiale du tableau
   tokenCount = 0;                   // Initialisation du compteur de tokens
   maxTokens = INITIAL_CAPACITY;     // Initialisation de la capacité maximale
 
   tokenStream = new Token[INITIAL_CAPACITY];  // Allocation initiale du tableau
 
-  char line[1000];  // Taille maximale d'une ligne dans le fichier
-
-  while (file.getline(line, 1000))
+  while (*currentChar != '\0')
   {
-    const char *currentChar = line;
-
-    while (*currentChar != '\0')
-    {
       scanWhiteSpaceAndComment(currentChar);
 
       if (*currentChar == '\0')
@@ -266,7 +253,4 @@ void Lexer::scan(const char *filename)
       // Ajoute le nouveau token à la fin du tableau
       tokenStream[tokenCount++] = currentToken;
     }
-  }
-
-  file.close();
 }

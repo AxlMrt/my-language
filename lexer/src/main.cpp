@@ -34,8 +34,22 @@ const char *tokenNames[] = {
 
 int main()
 {
+  ifstream file("test.txt");
+  string content;
+
+  if (file.is_open()) {
+    string line;
+    while (getline(file, line))
+      content += line + '\n';
+        
+    file.close();
+  } else {
+    cerr << "Erreur lors de l'ouverture du fichier syntax.txt" << endl;
+    return 1;
+  }
+
   Lexer lexer;
-  lexer.scan("syntax.txt");
+  lexer.scan(content.c_str());
 
   Token *tokens = lexer.getTokenStream();
   int count = lexer.getTokenCount();

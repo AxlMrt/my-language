@@ -4,7 +4,6 @@
 
 #include "../include/Lexer.h"
 
-
 TEST_CASE("Lexer::scan() test cases")
 {
   Lexer lexer;

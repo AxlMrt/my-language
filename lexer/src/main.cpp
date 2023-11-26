@@ -25,10 +25,10 @@ const char *tokenNames[] = {
     "ASSIGN",
     "UNKNOWN",
     "KEYWORD_INT",
-    "KEYWORD_DECIMAL",
     "KEYWORD_BOOL",
-    "KEYWORD_STRING",
     "KEYWORD_DSPL",
+    "KEYWORD_STRING",
+    "KEYWORD_DECIMAL",
     "END_OF_FILE"
 };
 

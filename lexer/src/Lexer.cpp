@@ -27,7 +27,6 @@ void Lexer::scanIdentifierOrKeywords(const char *&currentChar, Token *currentTok
       {"decimal", TokenType::KEYWORD_DECIMAL}
   };
 
-  // Recherche dans le dictionnaire si le lexème correspond à un mot-clé
   auto it = keywords.find(std::string(lexeme, lexemeLength));
   if (it != keywords.end()) {
     currentToken->type = it->second;

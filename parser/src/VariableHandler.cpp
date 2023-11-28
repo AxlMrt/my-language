@@ -38,8 +38,6 @@ void VariableHandler::parseVariableDeclaration(Token *tokens, int &currentIndex,
     cout << "Erreur : Type de variable attendu." << endl;
     return;
   }
-
-  const char* type_variable = tokens[currentIndex].lexeme;
   ++currentIndex;
 
   if (tokens[currentIndex].type != TokenType::ASSIGN)
@@ -47,7 +45,6 @@ void VariableHandler::parseVariableDeclaration(Token *tokens, int &currentIndex,
     cout << "Erreur : Symbole '=' attendu." << endl;
     return;
   }
-
   ++currentIndex;
     
     // A modifier pour assigner une valeur plus loin dans le code
@@ -57,8 +54,6 @@ void VariableHandler::parseVariableDeclaration(Token *tokens, int &currentIndex,
     cout << "Erreur : Valeur attendue pour la variable." << endl;
     return;
   }
-
-  const char* valeur_variable = tokens[currentIndex].lexeme;
   ++currentIndex;
 
   if (tokens[currentIndex].type != TokenType::SEMICOLON)
@@ -67,6 +62,6 @@ void VariableHandler::parseVariableDeclaration(Token *tokens, int &currentIndex,
     return;
   }
 
-  variables[nom_variable] = valeur_variable;
+  variables[nom_variable] = tokens[currentIndex].lexeme;
   ++currentIndex;
 }

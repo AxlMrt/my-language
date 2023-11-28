@@ -12,8 +12,8 @@ class Parser
     void parse();
 
   private:
-    int tokenCount;
     Token *tokenStream;
+    int tokenCount;
     int currentTokenIndex;
     DisplayHandler displayHandler;
     VariableHandler variableHandler;

@@ -1,0 +1,15 @@
+int_variable: int = 10;
+decimal_var: decimal = 10.10;
+str_variable: string = "Hello, World!";
+bool_variable: bool = true;
+
+dspl(int_variable);
+dspl(decimal_var);
+dspl(str_variable);
+dspl(bool_variable);
+
+dspl("this is a string");
+dspl(10);
+dspl(true);
+
+dspl(int_variable, str_variable);

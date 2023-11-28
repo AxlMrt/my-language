@@ -1,0 +1,14 @@
+# Ceci est un commentaire sur une seule ligne
+
+int_variable: int = 10;  # Assignation d'une valeur à une variable
+decimal_variable: decimal = 3.14; # Déclaration d'une variable décimale
+bool_variable: bool = true;  # Déclaration d'une variable booléenne
+string_variable: string = "Hello, World!"; # Déclaration d'une variable string_variable
+
+result: int = int_variable + 5;  # Opération d'addition
+
+dspl(result); # Utilisation de la fonction dspl pour afficher un message
+
+for (i: int = 0; i < result; ++i) {
+  dspl(result[i]);
+}

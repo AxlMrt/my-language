@@ -29,7 +29,6 @@ struct CharPtrEqual
   }
 };
 
-
 class Parser
 {
   public:
@@ -45,7 +44,6 @@ class Parser
     unordered_map<const char*, const char*, CharPtrHash, CharPtrEqual> variables;
     
     bool hasVariableType();
-    bool validateTokenForDisplay(TokenType token);
 };
 
 #endif

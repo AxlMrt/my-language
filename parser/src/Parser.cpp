@@ -91,12 +91,14 @@ void Parser::displayValue(const char* value, TokenType valueType)
   if (valueType == TokenType::IDENTIFIER) {
     auto it = variables.find(value);
     if (it != variables.end()) {
-      cout << it->second << endl;
+      cout << it->second;
     } else {
-      cout << "Erreur : Variable inconnue." << endl;
+      cout << "Erreur : Variable inconnue.";
     }
+  } else if (valueType == TokenType::STRING) {
+    cout << value;
   } else {
-    cout << value << endl;
+    cout << "Erreur : Type de valeur inconnu.";
   }
 }
 
@@ -107,9 +109,30 @@ void Parser::parseDSPL(Token *tokens, int &currentIndex)
 
     if (tokens[currentIndex].type == TokenType::LPAREN) {
       ++currentIndex;
+      
+      bool isFirstArgument = true;
 
-      displayValue(tokens[currentIndex].lexeme, tokens[currentIndex].type);
-      ++currentIndex;
+      while (tokens[currentIndex].type != TokenType::RPAREN)
+      {
+        if (!isFirstArgument)
+        {
+          if (tokens[currentIndex].type != TokenType::COMMA)
+          {
+            cout << "Erreur: Virgule attendue pour séparer les arguments.";
+            return;
+          }
+
+          cout << " ";
+          ++currentIndex;
+        }
+
+
+        displayValue(tokens[currentIndex].lexeme, tokens[currentIndex].type);
+        ++currentIndex;
+        isFirstArgument = false;
+      }
+      
+      cout << endl;
 
       if (tokens[currentIndex].type != TokenType::RPAREN)
       {
